@@ -35,18 +35,23 @@ func (s *UserService) CreateUser(user models.User) error {
 	return s.repo.CreateUser(user)
 }
 
-func (s *UserService) GetUser(payload models.LoginRequest) (*models.UserResponseDTO, error) {
+func (s *UserService) GetUser(payload models.LoginRequest) (*models.UserResponseDTO, string, error) {
 	user, err := s.repo.FindByEmail(payload.Email)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
-			return nil, _errors.ErrInvalidCredentials
+			return nil, "", _errors.ErrInvalidCredentials
 		}
-		return nil, err
+		return nil, "", err
 	}
 
 	isValid := utils.CheckPassword(user.Password, payload.Password)
 	if !isValid {
-		return nil, _errors.ErrInvalidCredentials
+		return nil, "", _errors.ErrInvalidCredentials
+	}
+
+	token, err := utils.GenerateToken(*user)
+	if err != nil {
+		return nil, "", err
 	}
 
 	return &models.UserResponseDTO{
@@ -54,5 +59,5 @@ func (s *UserService) GetUser(payload models.LoginRequest) (*models.UserResponse
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
-	}, nil
+	}, token, nil
 }

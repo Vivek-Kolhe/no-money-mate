@@ -65,7 +65,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := uc.service.GetUser(payload)
+	user, token, err := uc.service.GetUser(payload)
 	if err != nil {
 		if errors.Is(err, _errors.ErrInvalidCredentials) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -80,6 +80,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "User logged in successfully",
+		"token":   token,
 		"user":    user,
 	})
 }

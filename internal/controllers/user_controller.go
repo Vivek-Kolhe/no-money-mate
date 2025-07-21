@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"errors"
+
+	_errors "github.com/Vivek-Kolhe/no-money-mate/internal/errors"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -31,7 +34,7 @@ func (uc *UserController) RegisterUser(c *fiber.Ctx) error {
 
 	err := uc.service.CreateUser(user)
 	if err != nil {
-		if err.Error() == "user already exists" {
+		if errors.Is(err, _errors.ErrUserAlreadyExists) {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 				"error": "User with this email already exists",
 			})
@@ -44,5 +47,39 @@ func (uc *UserController) RegisterUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "User registered successfully",
+	})
+}
+
+func (uc *UserController) LoginUser(c *fiber.Ctx) error {
+	var payload models.LoginRequest
+
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid JSON input",
+		})
+	}
+
+	if payload.Email == "" || payload.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Email and password is required",
+		})
+	}
+
+	user, err := uc.service.GetUser(payload)
+	if err != nil {
+		if errors.Is(err, _errors.ErrInvalidCredentials) {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid email or password",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Login failed",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User logged in successfully",
+		"user":    user,
 	})
 }

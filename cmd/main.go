@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Vivek-Kolhe/no-money-mate/internal/controllers"
+	"github.com/Vivek-Kolhe/no-money-mate/internal/middlewares"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/repository"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/routes"
@@ -25,9 +26,15 @@ func main() {
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
 
+	expenseRepo := repository.NewExpenseRepository(db)
+	expenseService := services.NewExpenseService(expenseRepo)
+	expenseController := controllers.NewExpenseController(expenseService)
+
 	api := app.Group("/api")
+	authMiddleware := middlewares.JWTAuth(userRepo)
 
 	routes.RegisterUserRoutes(api, userController)
+	routes.RegisterExpenseRoutes(api, expenseController, authMiddleware)
 
 	// password, err := utils.HashPassword("123456")
 	// if err != nil {

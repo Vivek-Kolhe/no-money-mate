@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"log"
 
 	_errors "github.com/Vivek-Kolhe/no-money-mate/internal/errors"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
@@ -40,6 +41,7 @@ func (uc *UserController) RegisterUser(c *fiber.Ctx) error {
 			})
 		}
 
+		log.Panic(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to create user",
 		})
@@ -73,6 +75,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx) error {
 			})
 		}
 
+		log.Panic(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Login failed",
 		})

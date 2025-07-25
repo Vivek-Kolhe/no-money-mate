@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
@@ -61,5 +62,42 @@ func (ec *ExpenseController) AddExpense(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Expense added successfully",
 		"expense": expense,
+	})
+}
+
+func (ec *ExpenseController) GetExpenses(c *fiber.Ctx) error {
+	user, ok := c.Locals("user").(*models.User)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized access",
+		})
+	}
+
+	now := time.Now()
+	month, year := now.Month(), now.Year()
+
+	if monthQuery := c.Query("month"); monthQuery != "" {
+		monthInt, err := strconv.Atoi(monthQuery)
+		if err == nil && monthInt >= 1 && monthInt <= 12 {
+			month = time.Month(monthInt)
+		}
+	}
+
+	if yearQuery := c.Query("year"); yearQuery != "" {
+		yearInt, err := strconv.Atoi(yearQuery)
+		if err == nil && yearInt > 0 {
+			year = yearInt
+		}
+	}
+
+	expenses, err := ec.service.GetExpensesByUserID(user.ID, month, year)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch expenses",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data": expenses,
 	})
 }

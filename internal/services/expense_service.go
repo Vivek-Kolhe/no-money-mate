@@ -23,3 +23,7 @@ func (s *ExpenseService) CreateExpense(expense models.Expense) error {
 func (s *ExpenseService) GetExpensesByUserID(userID primitive.ObjectID, month time.Month, year int) ([]models.Expense, error) {
 	return s.repo.GetExpensesByUserID(userID, month, year)
 }
+
+func (s *ExpenseService) DeleteExpense(expenseId, userId primitive.ObjectID) error {
+	return s.repo.DeleteExpense(expenseId, userId)
+}

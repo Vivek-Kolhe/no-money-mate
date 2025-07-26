@@ -8,6 +8,8 @@ import (
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/services"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type ExpenseController struct {
@@ -78,15 +80,35 @@ func (ec *ExpenseController) GetExpenses(c *fiber.Ctx) error {
 
 	if monthQuery := c.Query("month"); monthQuery != "" {
 		monthInt, err := strconv.Atoi(monthQuery)
-		if err == nil && monthInt >= 1 && monthInt <= 12 {
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Month and year query param should be an integer",
+			})
+		}
+
+		if monthInt >= 1 && monthInt <= 12 {
 			month = time.Month(monthInt)
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Month can only be between 1 and 12",
+			})
 		}
 	}
 
 	if yearQuery := c.Query("year"); yearQuery != "" {
 		yearInt, err := strconv.Atoi(yearQuery)
-		if err == nil && yearInt > 0 {
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Month and year query param should be an integer",
+			})
+		}
+
+		if yearInt > 0 {
 			year = yearInt
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Year should be greater than 0",
+			})
 		}
 	}
 
@@ -99,5 +121,39 @@ func (ec *ExpenseController) GetExpenses(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"data": expenses,
+	})
+}
+
+func (ec *ExpenseController) DeleteExpense(c *fiber.Ctx) error {
+	user, ok := c.Locals("user").(*models.User)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized access",
+		})
+	}
+
+	id := c.Params("id")
+	expenseID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid expense ID",
+		})
+	}
+
+	err = ec.service.DeleteExpense(expenseID, user.ID)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Expense not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to delete expense",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Expense deleted successfully",
 	})
 }

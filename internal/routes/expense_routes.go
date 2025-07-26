@@ -9,5 +9,6 @@ func RegisterExpenseRoutes(app fiber.Router, controller *controllers.ExpenseCont
 	userGroup := app.Group("/expense", middleware)
 
 	userGroup.Post("/", controller.AddExpense)
+	userGroup.Delete("/:id", controller.DeleteExpense)
 	userGroup.Get("/all", controller.GetExpenses)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type ExpenseRepository struct {
@@ -53,4 +54,22 @@ func (r *ExpenseRepository) GetExpensesByUserID(userID primitive.ObjectID, month
 	}
 
 	return expenses, nil
+}
+
+func (r *ExpenseRepository) DeleteExpense(expenseID, userID primitive.ObjectID) error {
+	collection := r.db.GetCollection("expenses")
+
+	filter := bson.M{
+		"_id":    expenseID,
+		"userId": userID,
+	}
+	result, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
 }

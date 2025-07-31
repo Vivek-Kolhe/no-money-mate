@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	_err "github.com/Vivek-Kolhe/no-money-mate/internal/errors"
 	"github.com/Vivek-Kolhe/no-money-mate/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -18,10 +19,19 @@ func NewExpenseRepository(db *models.Database) *ExpenseRepository {
 	return &ExpenseRepository{db: db}
 }
 
-func (r *ExpenseRepository) CreateExpense(expense models.Expense) error {
+func (r *ExpenseRepository) CreateExpense(expense models.Expense) (primitive.ObjectID, error) {
 	collection := r.db.GetCollection("expenses")
-	_, err := collection.InsertOne(context.TODO(), expense)
-	return err
+	res, err := collection.InsertOne(context.TODO(), expense)
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+
+	insertedID, ok := res.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return primitive.NilObjectID, _err.ErrFailedToConvertInsertedIdToObjectId
+	}
+
+	return insertedID, nil
 }
 
 func (r *ExpenseRepository) GetExpensesByUserID(userID primitive.ObjectID, month time.Month, year int) ([]models.Expense, error) {

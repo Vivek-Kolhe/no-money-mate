@@ -52,12 +52,13 @@ func (ec *ExpenseController) AddExpense(c *fiber.Ctx) error {
 	}
 
 	expense.UserID = user.ID
-
-	if err := ec.service.CreateExpense(expense); err != nil {
+	insertedID, err := ec.service.CreateExpense(expense)
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to add an expense",
 		})
 	}
+	expense.ID = insertedID
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Expense added successfully",

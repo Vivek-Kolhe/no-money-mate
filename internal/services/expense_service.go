@@ -16,7 +16,7 @@ func NewExpenseService(repo *repository.ExpenseRepository) *ExpenseService {
 	return &ExpenseService{repo: repo}
 }
 
-func (s *ExpenseService) CreateExpense(expense models.Expense) error {
+func (s *ExpenseService) CreateExpense(expense models.Expense) (primitive.ObjectID, error) {
 	return s.repo.CreateExpense(expense)
 }
 

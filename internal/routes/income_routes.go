@@ -9,5 +9,6 @@ func RegisterIncomeRoutes(app fiber.Router, controller *controllers.IncomeContro
 	incomeGroup := app.Group("/income", middleware)
 
 	incomeGroup.Post("/", controller.AddIncome)
-	// incomeGroup.Delete(":/id",)
+	incomeGroup.Delete("/:id", controller.DeleteIncome)
+	incomeGroup.Get("/all", controller.GetIncomes)
 }

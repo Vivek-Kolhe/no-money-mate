@@ -87,3 +87,21 @@ func (uc *UserController) LoginUser(c *fiber.Ctx) error {
 		"user":    user,
 	})
 }
+
+func (uc *UserController) GetUser(c *fiber.Ctx) error {
+	user, ok := c.Locals("user").(*models.User)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized user or invalid token",
+		})
+	}
+
+	userDTO := models.UserResponseDTO{
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userDTO)
+}

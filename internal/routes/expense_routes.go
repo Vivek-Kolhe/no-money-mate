@@ -6,9 +6,9 @@ import (
 )
 
 func RegisterExpenseRoutes(app fiber.Router, controller *controllers.ExpenseController, middleware fiber.Handler) {
-	userGroup := app.Group("/expense", middleware)
+	expenseGroup := app.Group("/expense", middleware)
 
-	userGroup.Post("/", controller.AddExpense)
-	userGroup.Delete("/:id", controller.DeleteExpense)
-	userGroup.Get("/all", controller.GetExpenses)
+	expenseGroup.Post("/", controller.AddExpense)
+	expenseGroup.Delete("/:id", controller.DeleteExpense)
+	expenseGroup.Get("/all", controller.GetExpenses)
 }

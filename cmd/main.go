@@ -37,21 +37,16 @@ func main() {
 	expenseService := services.NewExpenseService(expenseRepo)
 	expenseController := controllers.NewExpenseController(expenseService)
 
+	incomeRepo := repository.NewIncomeRepository(db)
+	incomeService := services.NewIncomeService(incomeRepo)
+	incomeController := controllers.NewIncomeController(incomeService)
+
 	api := app.Group("/api")
 	authMiddleware := middlewares.JWTAuth(userRepo)
 
-	routes.RegisterUserRoutes(api, userController)
+	routes.RegisterUserRoutes(api, userController, authMiddleware)
 	routes.RegisterExpenseRoutes(api, expenseController, authMiddleware)
-
-	// password, err := utils.HashPassword("123456")
-	// if err != nil {
-	// 	log.Fatal("Something went wrong while hashing password")
-	// }
-
-	// err = userRepo.CreateUser(models.User{FirstName: "Vivek", LastName: "Kolhe", Email: "vivek@example.com", Password: password})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	routes.RegisterIncomeRoutes(api, incomeController, authMiddleware)
 
 	log.Fatal(app.Listen(":3000"))
 }

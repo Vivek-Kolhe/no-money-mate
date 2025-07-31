@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"strconv"
 	"time"
 
@@ -55,7 +54,6 @@ func (ec *ExpenseController) AddExpense(c *fiber.Ctx) error {
 	expense.UserID = user.ID
 
 	if err := ec.service.CreateExpense(expense); err != nil {
-		log.Panic(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to add an expense",
 		})

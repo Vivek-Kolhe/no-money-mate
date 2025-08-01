@@ -41,12 +41,17 @@ func main() {
 	incomeService := services.NewIncomeService(incomeRepo)
 	incomeController := controllers.NewIncomeController(incomeService)
 
+	dashboardRepo := repository.NewDashboardRepository(db)
+	dashboardService := services.NewDashboardService(dashboardRepo)
+	dashboardController := controllers.NewDashboardController(dashboardService)
+
 	api := app.Group("/api")
 	authMiddleware := middlewares.JWTAuth(userRepo)
 
 	routes.RegisterUserRoutes(api, userController, authMiddleware)
 	routes.RegisterExpenseRoutes(api, expenseController, authMiddleware)
 	routes.RegisterIncomeRoutes(api, incomeController, authMiddleware)
+	routes.RegisterDashboardRoutes(api, dashboardController, authMiddleware)
 
 	log.Fatal(app.Listen(":3000"))
 }

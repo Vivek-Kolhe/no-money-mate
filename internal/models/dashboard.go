@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type DashboardData struct {
 	MonthIncomeTotal   float64       `json:"monthIncomeTotal"`
@@ -14,10 +18,11 @@ type DashboardData struct {
 }
 
 type Transaction struct {
-	Type     string    `json:"type"`
-	Amount   float64   `json:"amount"`
-	Date     time.Time `json:"date"`
-	Icon     string    `json:"icon"`
-	Source   string    `json:"source"`
-	Category string    `json:"category"`
+	ID       primitive.ObjectID `json:"id,omitempty"`
+	Type     string             `json:"type"`
+	Amount   float64            `json:"amount"`
+	Date     time.Time          `json:"date"`
+	Icon     string             `json:"icon"`
+	Source   string             `json:"source"`
+	Category string             `json:"category"`
 }

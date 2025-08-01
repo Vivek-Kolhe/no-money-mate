@@ -35,7 +35,7 @@ func (r *DashboardRepository) GetDashboardData(userID primitive.ObjectID) (*mode
 	expenseCollection := r.db.GetCollection("expenses")
 
 	// Aggregation
-	filter := bson.M{"userId": userID, "data": bson.M{"$gte": firstOfMonth}}
+	filter := bson.M{"userId": userID, "date": bson.M{"$gte": firstOfMonth}}
 	cursor, err := incomeCollection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -125,6 +125,7 @@ func (r *DashboardRepository) GetDashboardData(userID primitive.ObjectID) (*mode
 		}
 
 		last5Transactions = append(last5Transactions, models.Transaction{
+			ID:       e.ID,
 			Type:     "expense",
 			Amount:   e.Amount,
 			Date:     e.Date,
@@ -140,6 +141,7 @@ func (r *DashboardRepository) GetDashboardData(userID primitive.ObjectID) (*mode
 		}
 
 		last5Transactions = append(last5Transactions, models.Transaction{
+			ID:     i.ID,
 			Type:   "income",
 			Amount: i.Amount,
 			Date:   i.Date,

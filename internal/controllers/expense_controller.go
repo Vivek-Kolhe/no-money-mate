@@ -34,9 +34,9 @@ func (ec *ExpenseController) AddExpense(c *fiber.Ctx) error {
 		})
 	}
 
-	if expense.Category == "" || expense.Icon == "" {
+	if expense.Category == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Expense category or icon is missing",
+			"error": "Expense category is missing",
 		})
 	}
 

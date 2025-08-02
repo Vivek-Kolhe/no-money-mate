@@ -34,9 +34,9 @@ func (ic *IncomeController) AddIncome(c *fiber.Ctx) error {
 		})
 	}
 
-	if income.Icon == "" || income.Source == "" {
+	if income.Source == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Income source or icon is missing",
+			"error": "Income source is missing",
 		})
 	}
 

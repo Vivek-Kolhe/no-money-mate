@@ -11,14 +11,13 @@ import (
 	"github.com/Vivek-Kolhe/no-money-mate/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading/finding .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading/finding .env file")
+	// }
 
 	db := models.ConnectDB()
 	app := fiber.New()

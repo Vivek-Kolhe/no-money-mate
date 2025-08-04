@@ -53,5 +53,12 @@ func main() {
 	routes.RegisterIncomeRoutes(api, incomeController, authMiddleware)
 	routes.RegisterDashboardRoutes(api, dashboardController, authMiddleware)
 
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"status":  "ok",
+			"message": "alive",
+		})
+	})
+
 	log.Fatal(app.Listen(":3000"))
 }
